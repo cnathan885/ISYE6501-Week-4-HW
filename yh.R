@@ -69,8 +69,30 @@ corrected_aic
 
 
 
+#-----Question 10.1----#
 
 
+install.packages("tree")
+library(tree)
+
+data <- read.table('uscrime.txt', header=TRUE)
+data
+
+#build regression tree model
+uscrime_tree <- tree(Crime~., data)
+summary(uscrime_tree)
+
+plot(uscrime_tree)
+text(uscrime_tree)
+title("US Crime Regression Tree")
+
+#perform cross validation to find optimal tree complexity
+cv_tree <- cv.tree(uscrime_tree)
+
+#prune tree to optimal size
+pruned_tree_model <- prune.tree(uscrime_tree, best=n)
+plot(pruned_tree_model)
+text(pruned_tree_model)
 
 
 
