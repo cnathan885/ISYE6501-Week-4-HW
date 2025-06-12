@@ -73,13 +73,24 @@ corrected_aic
 
 
 install.packages("tree")
+install.packages("caret")
 library(tree)
+library(caret)
 
 data <- read.table('uscrime.txt', header=TRUE)
 data
 
+#split data into training and testing sets
+set.seed(7)
+train <- createDataPartition(data$Crime, p = 0.5, list=FALSE)
+train_data <- data[train, ]
+test_data <- data[-train, ]
+nrow(train_data)
+nrow(test_data)
+
+
 #build regression tree model
-uscrime_tree <- tree(Crime~., data)
+uscrime_tree <- tree(Crime~., train_data)
 summary(uscrime_tree)
 
 plot(uscrime_tree)
@@ -89,10 +100,25 @@ title("US Crime Regression Tree")
 #perform cross validation to find optimal tree complexity
 cv_tree <- cv.tree(uscrime_tree)
 
+plot(cv_tree$size, cv_tree$dev, type = "b",
+     xlab = "Number of Terminal Nodes (Tree Size)", ylab = "Deviance (Cross-Validated Error)",
+     main = "Cross-Validation for Tree Pruning (on Training Data)")
+
+#find tree size with the minimum deviance
+optimal_tree_size_train <- cv_tree$size[which.min(cv_tree$dev)]
+optimal_tree_size_train
+
 #prune tree to optimal size
-pruned_tree_model <- prune.tree(uscrime_tree, best=n)
-plot(pruned_tree_model)
-text(pruned_tree_model)
+pruned_tree_model_train <- prune.tree(uscrime_tree, best = optimal_tree_size_train)
+plot(pruned_tree_model_train)
+text(pruned_tree_model_train)
+
+#pruning tree gives worse r-squared
+
+
+
+
+
 
 
 
